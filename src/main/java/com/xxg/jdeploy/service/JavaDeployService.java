@@ -8,6 +8,7 @@ import com.xxg.jdeploy.domain.JavaDeployInfo;
 import com.xxg.jdeploy.mapper.JavaDeployMapper;
 import com.xxg.jdeploy.util.ShellUtil;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 @Service
 public class JavaDeployService {
+	private static Logger logger = Logger.getLogger(JavaWebDeployService.class);
 	
 	@Autowired
 	private JavaDeployMapper javaDeployMapper;
@@ -51,11 +53,15 @@ public class JavaDeployService {
 		JavaDeployInfo info = javaDeployMapper.getDetail(uuid);
 		if(info != null) {
 			StringBuilder sb = new StringBuilder();
+			logger.info("deploy begin");
 
 			// kill进程
 			sb.append(ShellUtil.exec("sh " + shellFileFolder + "/kill.sh " + info.getUuid()));
 			// 打包
 			String[] cmdArray = {"sh", shellFileFolder + "/package.sh", info.getUuid(), info.getUrl(), basePath, String.valueOf(info.getType()), info.getProfile(), info.getBranch()};
+			logger.info(shellFileFolder + "/package.sh" + " " +  info.getUuid()+ " " + info.getUrl()+ " "
+								+ basePath+ " " + String.valueOf(info.getType())+ " "
+								+ info.getProfile()+ " " + info.getBranch());
 			sb.append(ShellUtil.exec(cmdArray));
 			String finalName = getFinalName(info.getUuid());
 			if(finalName != null) {

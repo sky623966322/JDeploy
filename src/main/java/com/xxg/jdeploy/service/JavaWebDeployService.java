@@ -3,8 +3,8 @@ package com.xxg.jdeploy.service;
 import com.xxg.jdeploy.domain.JavaWebDeployInfo;
 import com.xxg.jdeploy.mapper.JavaWebDeployMapper;
 import com.xxg.jdeploy.util.ShellUtil;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import java.util.List;
 
 @Service
 public class JavaWebDeployService {
+	private static Logger logger = Logger.getLogger(JavaWebDeployService.class);
 	
 	@Autowired
 	private JavaWebDeployMapper javaWebDeployMapper;
@@ -55,6 +56,7 @@ public class JavaWebDeployService {
 		JavaWebDeployInfo info = javaWebDeployMapper.getDetail(uuid);
 		if(info != null) {
 			StringBuilder sb = new StringBuilder();
+			logger.info("deploy begin");
 
 			// kill进程
 			sb.append(ShellUtil.exec("sh " + shellFileFolder + "/kill.sh " + info.getUuid()));
@@ -66,7 +68,7 @@ public class JavaWebDeployService {
 			}
 			
 			String[] cmdArray = {"sh", shellFileFolder + "/package.sh", info.getUuid(), info.getUrl(), jettyPath, basePath, String.valueOf(info.getType()), info.getProfile(), info.getBranch()};
-			System.out.println(shellFileFolder + "/package.sh" + " " +  info.getUuid()+ " " + info.getUrl()+ " "
+			logger.info(shellFileFolder + "/package.sh" + " " +  info.getUuid()+ " " + info.getUrl()+ " "
 									   + jettyPath+ " " + basePath+ " " + String.valueOf(info.getType())+ " "
 									   + info.getProfile()+ " " + info.getBranch());
 			sb.append(ShellUtil.exec(cmdArray));
